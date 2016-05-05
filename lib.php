@@ -24,31 +24,31 @@
 require_once($CFG->libdir.'/formslib.php');
 
 /**
-* ACTION_VIEW - represents viewing the HTML version of the report
+* REPORT_NCCCSCENSUS_ACTION_VIEW - represents viewing the HTML version of the report
 */
-define('ACTION_VIEW', 1);
+define('REPORT_NCCCSCENSUS_ACTION_VIEW', 1);
 
 /**
-* ACTION_PDF - represents downloading the report in PDF format
+* REPORT_NCCCSCENSUS_ACTION_PDF - represents downloading the report in PDF format
 */
-define('ACTION_PDF', 2);
+define('REPORT_NCCCSCENSUS_ACTION_PDF', 2);
 
 /**
-* ACTION_CSV - represents downloading the report in CSV format
+* REPORT_NCCCSCENSUS_ACTION_CSV - represents downloading the report in CSV format
 */
-define('ACTION_CSV', 3);
+define('REPORT_NCCCSCENSUS_ACTION_CSV', 3);
 
 /**
-* EXCLUDE_GROUP_MEMBERS - flag to determine whether group member should be excluded from report
+* REPORT_NCCCSCENSUS_EXCLUDE_GROUP_MEMBERS - flag to determine whether group member should be excluded from report
 */
-define('EXCLUDE_GROUP_MEMBERS', 0);
+define('REPORT_NCCCSCENSUS_EXCLUDE_GROUP_MEMBERS', 0);
 
 /**
  * Class to define the report search form
  *
  * @see moodleform
  */
-class ncccscensus_setup_query_form extends moodleform {
+class report_ncccscensus_setup_query_form extends moodleform {
 
     /**
      * __construct
@@ -121,13 +121,13 @@ class ncccscensus_setup_query_form extends moodleform {
 
         $mform->addElement('html', '<br>');
 
-        $bview  =& $mform->createElement('radio', 'action', '', get_string('viewreport', 'report_ncccscensus'), ACTION_VIEW);
-        $bdlpdf =& $mform->createElement('radio', 'action', '', get_string('downloadreportpdf', 'report_ncccscensus'), ACTION_PDF);
-        $bdlcsv =& $mform->createElement('radio', 'action', '', get_string('downloadreportcsv', 'report_ncccscensus'), ACTION_CSV);
+        $bview  =& $mform->createElement('radio', 'action', '', get_string('viewreport', 'report_ncccscensus'), REPORT_NCCCSCENSUS_ACTION_VIEW);
+        $bdlpdf =& $mform->createElement('radio', 'action', '', get_string('downloadreportpdf', 'report_ncccscensus'), REPORT_NCCCSCENSUS_ACTION_PDF);
+        $bdlcsv =& $mform->createElement('radio', 'action', '', get_string('downloadreportcsv', 'report_ncccscensus'), REPORT_NCCCSCENSUS_ACTION_CSV);
 
         $actions = array($bview, $bdlpdf, $bdlcsv);
         $mform->addGroup($actions, 'action', get_string('action', 'report_ncccscensus'), array(' '), false);
-        $mform->setDefault('action', ACTION_VIEW);
+        $mform->setDefault('action', REPORT_NCCCSCENSUS_ACTION_VIEW);
 
         $mform->addElement('html', '<br>');
 
@@ -145,7 +145,7 @@ class ncccscensus_setup_query_form extends moodleform {
  *
  * @see moodleform
  */
-class ncccscensus_setup_bulk_form extends moodleform {
+class report_ncccscensus_setup_bulk_form extends moodleform {
     /** @var string Comma seperate list of sections to show categories,courses,teachers */
     private $actions = null;
     /**
@@ -218,7 +218,7 @@ class ncccscensus_setup_bulk_form extends moodleform {
  */
 function report_ncccscensus_cron() {
     global $DB;
-    $proccess = $DB->get_records('ncccscensus_batch', array('status' => 0));
+    $proccess = $DB->get_records('report_ncccscensus_batch', array('status' => 0));
     foreach ($proccess as $batch) {
         report_ncccscensus_process_batch($batch->id);
     }
@@ -234,7 +234,7 @@ function report_ncccscensus_process_batch($batch) {
     global $CFG, $DB;
     require_once($CFG->libdir.'/moodlelib.php');
     // Retrieve first 50 reports to generate at a time and prevent cron job from lasting longer than 5 minutes.
-    $proccess = $DB->get_records('ncccscensus_reports', array('batchid' => $batch, 'status' => 0), '', '*', 0, 50);
+    $proccess = $DB->get_records('report_ncccscensus', array('batchid' => $batch, 'status' => 0), '', '*', 0, 50);
     $files = array();
     $tempdirused = false;
     $dir = make_temp_directory("ncccscensus$batch", false);
@@ -251,7 +251,7 @@ function report_ncccscensus_process_batch($batch) {
         $filename = $filename.'-'.$report->course.'.pdf';
         // Get temporary file location.
         $fullfilename = $dir.'/'.$filename;
-        if (true === ncccscensus_generate_report($formdata, ACTION_PDF, $fullfilename)) {
+        if (true === report_ncccscensus_generate_report($formdata, REPORT_NCCCSCENSUS_ACTION_PDF, $fullfilename)) {
             $files[$filename] = $fullfilename;
             $report->filename = $filename;
             $report->fullfilename = $fullfilename;
@@ -262,12 +262,12 @@ function report_ncccscensus_process_batch($batch) {
             $report->status = 2;
         }
         // Mark report generation as complete.
-        $DB->update_record('ncccscensus_reports', $report);
+        $DB->update_record('report_ncccscensus', $report);
     }
     if (!$tempdirused) {
         rmdir($dir);
     }
-    ncccscensus_generate_bulk_zip($batch);
+    report_ncccscensus_generate_bulk_zip($batch);
 }
 
 /**
@@ -277,10 +277,10 @@ function report_ncccscensus_process_batch($batch) {
  * @return array|bool False on no files to add to zip, array on success
  * @uses $CFG, $DB
  */
-function ncccscensus_get_zip_files($batch) {
+function report_ncccscensus_get_zip_files($batch) {
     global $DB;
     $files = array();
-    $filerecords = $DB->get_records('ncccscensus_reports', array('batchid' => $batch, 'status' => 1));
+    $filerecords = $DB->get_records('report_ncccscensus', array('batchid' => $batch, 'status' => 1));
     foreach ($filerecords as $file) {
         if (!empty($file->filename)) {
             $files[$file->filename] = $file->fullfilename;
@@ -299,14 +299,14 @@ function ncccscensus_get_zip_files($batch) {
  * @return array|bool False on no files to add to zip, array on success
  * @uses $CFG, $DB
  */
-function ncccscensus_generate_bulk_zip($batch) {
+function report_ncccscensus_generate_bulk_zip($batch) {
     global $DB, $USER;
     // Check if last report.
-    $left = $DB->count_records('ncccscensus_reports', array('batchid' => $batch, 'status' => 0));
+    $left = $DB->count_records('report_ncccscensus', array('batchid' => $batch, 'status' => 0));
     if ($left !== 0) {
         return false;
     }
-    $files = ncccscensus_get_zip_files($batch);
+    $files = report_ncccscensus_get_zip_files($batch);
     if (!is_array($files)) {
          return false;
     }
@@ -338,7 +338,7 @@ function ncccscensus_generate_bulk_zip($batch) {
     // Generate zip.
     $zipper = get_file_packer('application/zip');
 
-    $record = $DB->get_record('ncccscensus_batch', array('id' => $batch));
+    $record = $DB->get_record('report_ncccscensus_batch', array('id' => $batch));
     $contextid = context_system::instance()->id;
     $path = 'report_ncccscensus';
     $newfile = $zipper->archive_to_storage($files, $contextid, $path, 'archive', $batch, $parentpath, $filename, $USER->id);
@@ -347,7 +347,7 @@ function ncccscensus_generate_bulk_zip($batch) {
         $record->zipfile = $filename;
     }
     $record->status = 1;
-    $DB->update_record('ncccscensus_batch', $record);
+    $DB->update_record('report_ncccscensus_batch', $record);
     $info = array();
     // Delete pdf files.
     foreach ($files as $filename => $fullfilename) {
@@ -366,16 +366,16 @@ function ncccscensus_generate_bulk_zip($batch) {
  * @return bool False on failure
  * @uses $DB
  */
-function ncccscensus_generate_bulk_report($formdata) {
+function report_ncccscensus_generate_bulk_report($formdata) {
     global $DB;
-    $courses = ncccscensus_get_courses($formdata);
+    $courses = report_ncccscensus_get_courses($formdata);
     if (!(is_array($courses) && count($courses) > 0)) {
         return false;
     }
     // Generate random batch id.
     $report = new stdClass;
     $report->starttime = usertime(time(), get_user_timezone());
-    $batchid = $DB->insert_record('ncccscensus_batch', $report);
+    $batchid = $DB->insert_record('report_ncccscensus_batch', $report);
     foreach ($courses as $course) {
         $report = new stdClass;
         $report->batchid = $batchid;
@@ -383,7 +383,7 @@ function ncccscensus_generate_bulk_report($formdata) {
         $report->starttime = usertime(time(), get_user_timezone());
         $report->reportstartdate = $formdata->startdate;
         $report->reportenddate = $formdata->enddate;
-        $DB->insert_record('ncccscensus_reports', $report);
+        $DB->insert_record('report_ncccscensus', $report);
     }
     return $batchid;
 }
@@ -395,11 +395,11 @@ function ncccscensus_generate_bulk_report($formdata) {
  * @return void
  * @uses $DB
  */
-function ncccscensus_bulk_report_delete_all() {
+function report_ncccscensus_bulk_report_delete_all() {
     global $DB;
-    $batches = $DB->get_records('ncccscensus_batch', null);
+    $batches = $DB->get_records('report_ncccscensus_batch', null);
     foreach ($batches as $batch) {
-        ncccscensus_bulk_report_cancel($batch->id);
+        report_ncccscensus_bulk_report_cancel($batch->id);
     }
 }
 
@@ -410,13 +410,13 @@ function ncccscensus_bulk_report_delete_all() {
  * @return void
  * @uses $DB
  */
-function ncccscensus_bulk_report_cancel($batchid) {
+function report_ncccscensus_bulk_report_cancel($batchid) {
     global $DB;
-    $files = ncccscensus_get_zip_files($batchid);
-    $batch = $DB->get_record('ncccscensus_batch', array('id' => $batchid));
-    $reports = $DB->get_records('ncccscensus_reports', array('batchid' => $batchid));
-    $DB->delete_records('ncccscensus_batch', array('id' => $batchid));
-    $DB->delete_records('ncccscensus_reports', array('batchid' => $batchid));
+    $files = report_ncccscensus_get_zip_files($batchid);
+    $batch = $DB->get_record('report_ncccscensus_batch', array('id' => $batchid));
+    $reports = $DB->get_records('report_ncccscensus', array('batchid' => $batchid));
+    $DB->delete_records('report_ncccscensus_batch', array('id' => $batchid));
+    $DB->delete_records('report_ncccscensus', array('batchid' => $batchid));
     if (!empty($batch->zipfile)) {
         $fs = get_file_storage();
         // Check to see if file exists.
@@ -452,16 +452,16 @@ function ncccscensus_bulk_report_cancel($batchid) {
  * @return bool|array False on failure, array with bulk report status
  * @uses $DB
  */
-function ncccscensus_bulk_report_status($batchid) {
+function report_ncccscensus_bulk_report_status($batchid) {
     global $DB;
     $data = array();
-    $data['totalcourses'] = $DB->count_records('ncccscensus_reports', array('batchid' => $batchid));
+    $data['totalcourses'] = $DB->count_records('report_ncccscensus', array('batchid' => $batchid));
     if (empty($data['totalcourses']) || $data['totalcourses'] === 0) {
         return false;
     }
-    $data['totalcomplete'] = $DB->count_records('ncccscensus_reports', array('batchid' => $batchid, 'status' => 1));
+    $data['totalcomplete'] = $DB->count_records('report_ncccscensus', array('batchid' => $batchid, 'status' => 1));
     $data['totalwaiting'] = $data['totalcourses'] - $data['totalcomplete'];
-    $record = $DB->get_record('ncccscensus_reports', array('batchid' => $batchid), 'starttime');
+    $record = $DB->get_record('report_ncccscensus', array('batchid' => $batchid), 'starttime');
     $data['starttime'] = userdate($record->starttime);
     return $data;
 }
@@ -474,12 +474,14 @@ function ncccscensus_bulk_report_status($batchid) {
  * @return array with bulk report status
  * @uses $DB
  */
-function ncccscensus_bulk_report_status_all() {
+function report_ncccscensus_bulk_report_status_all() {
     global $DB;
-    $query = 'SELECT batchid, nb.zipfile, COUNT(*) totalcourses, SUM(nr.status = 0) totalwaiting,';
-    $query .= ' SUM(nr.status = 1) totalcomplete, nr.starttime';
-    $query .= ' FROM {ncccscensus_reports} nr, {ncccscensus_batch} nb WHERE nb.id = nr.batchid';
-    $query .= ' GROUP BY nr.batchid ORDER BY nr.starttime DESC LIMIT 200';
+    $query = 'SELECT nr.batchid, nr.starttime, nb.zipfile, COUNT(*) totalcourses,';
+    $query .= ' (SELECT COUNT(*) FROM {report_ncccscensus} nr_waiting WHERE nr_waiting.batchid = nr.batchid and nr_waiting.status = 0) totalwaiting,';
+    $query .= ' (SELECT COUNT(*) FROM {report_ncccscensus} nr_complete WHERE nr_complete.batchid = nr.batchid and nr_complete.status = 1) totalcomplete,';
+    $query .= ' nr.starttime';
+    $query .= ' FROM {report_ncccscensus} nr, {report_ncccscensus_batch} nb WHERE nb.id = nr.batchid';
+    $query .= ' GROUP BY nr.batchid, nr.starttime, nb.zipfile ORDER BY nr.starttime DESC LIMIT 200';
     $all = $DB->get_records_sql($query);
     foreach ($all as $key => $value) {
         $all[$key]->starttime = userdate($all[$key]->starttime);
@@ -494,7 +496,7 @@ function ncccscensus_bulk_report_status_all() {
  * @return bool|array False on failure, Array of courses on success
  * @uses $DB
  */
-function ncccscensus_get_category_courses($categories, $limittocourses = false) {
+function report_ncccscensus_get_category_courses($categories, $limittocourses = false) {
     global $DB;
     if (count($categories) == 0) {
         return false;
@@ -526,7 +528,7 @@ function ncccscensus_get_category_courses($categories, $limittocourses = false) 
  * @return bool|array False on failure, Array of courses on success
  * @uses $DB
  */
-function ncccscensus_get_courses($formdata) {
+function report_ncccscensus_get_courses($formdata) {
     global $CFG, $DB;
     require_once($CFG->libdir.'/accesslib.php');
 
@@ -538,7 +540,7 @@ function ncccscensus_get_courses($formdata) {
     if (empty($formdata->courses) && empty($formdata->teachers) && !empty($formdata->categories)) {
         // Show all courses in the categories selected.
         $categories = preg_split('/,/', $formdata->categories);
-        return ncccscensus_get_category_courses($categories);
+        return report_ncccscensus_get_category_courses($categories);
     }
 
     if (!empty($formdata->courses) && empty($formdata->teachers)) {
@@ -591,7 +593,7 @@ function ncccscensus_get_courses($formdata) {
     // Categories and teachers selected.
     if (!empty($formdata->categories) && count($teachercourses) > 0 && empty($formdata->courses)) {
         $categories = preg_split('/,/', $formdata->categories);
-        return ncccscensus_get_category_courses($categories, $teachercourses);
+        return report_ncccscensus_get_category_courses($categories, $teachercourses);
     }
 
     if (count($teachercourses) > 0) {
@@ -611,7 +613,7 @@ function ncccscensus_get_courses($formdata) {
  * @return bool False on failure
  * @uses $CFG, $DB
  */
-function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = false) {
+function report_ncccscensus_generate_report($formdata, $type = REPORT_NCCCSCENSUS_ACTION_VIEW, $saveto = false) {
     global $CFG, $DB;
     require_once($CFG->libdir.'/moodlelib.php');
     $reportname = 'report_ncccscensus';
@@ -643,13 +645,13 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
 
         // In case the form is hacked, the group could be invalid.
         if ($group === false || $group < 0) {
-            throw new ncccscensus_exception('cannotfindgroup');
+            throw new report_ncccscensus_exception('cannotfindgroup');
         }
 
         if ($group > 0) {
             // Validate the group ID.
             if (!groups_group_exists($group)) {
-                throw new ncccscensus_exception('cannotfindgroup');
+                throw new report_ncccscensus_exception('cannotfindgroup');
             }
 
             // Validate the group ID with respect to the course ID.
@@ -662,7 +664,7 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
                 }
             }
             if (!$groupfound) {
-                throw new ncccscensus_exception('invalidgroupid');
+                throw new report_ncccscensus_exception('invalidgroupid');
             }
 
             // User could still hack form to view a group that they don't have the capability to see.
@@ -676,7 +678,7 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
             }
 
             if ($userid === false) {
-                throw new ncccscensus_exception('invalidgroupid');
+                throw new report_ncccscensus_exception('invalidgroupid');
             }
 
             if ($userid != 0) {
@@ -689,7 +691,7 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
                     }
                 }
                 if ($groupnotfound) {
-                    throw new ncccscensus_exception('invalidgroupid');
+                    throw new report_ncccscensus_exception('invalidgroupid');
                 }
             }
         }
@@ -697,28 +699,28 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
 
     $users = array();
     if ($nogroups) {
-        $users = ncccscensus_get_users($cid, EXCLUDE_GROUP_MEMBERS);
+        $users = report_ncccscensus_get_users($cid, REPORT_NCCCSCENSUS_EXCLUDE_GROUP_MEMBERS);
     } else if ($group > 0) {
-        $users = ncccscensus_get_users($cid, $group);
+        $users = report_ncccscensus_get_users($cid, $group);
     } else {
-        $users = ncccscensus_get_users($cid);
+        $users = report_ncccscensus_get_users($cid);
     }
 
-    $results = ncccscensus_build_grades_array($cid, $users, $formdata->startdate, $formdata->enddate);
+    $results = report_ncccscensus_build_grades_array($cid, $users, $formdata->startdate, $formdata->enddate);
 
     if (empty($results)) {
         return false;
     }
 
-    if ($type == ACTION_VIEW) {
+    if ($type == REPORT_NCCCSCENSUS_ACTION_VIEW) {
         $headers = array('student' => get_string('studentfullnamehtml', $reportname));
-        $showstudentid = ncccscensus_check_field_status('showstudentid', 'html');
-    } else if ($type == ACTION_CSV) {
+        $showstudentid = report_ncccscensus_check_field_status('showstudentid', 'html');
+    } else if ($type == REPORT_NCCCSCENSUS_ACTION_CSV) {
         $headers = array('student' => get_string('studentfullnamecsv', $reportname));
-        $showstudentid = ncccscensus_check_field_status('showstudentid', 'csv');
+        $showstudentid = report_ncccscensus_check_field_status('showstudentid', 'csv');
     } else {
         $headers = array('student' => get_string('studentfullnamepdf', $reportname));
-        $showstudentid = ncccscensus_check_field_status('showstudentid', 'pdf');
+        $showstudentid = report_ncccscensus_check_field_status('showstudentid', 'pdf');
     }
 
     if ($showstudentid) {
@@ -761,8 +763,8 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
         }
     }
 
-    if ($type != ACTION_PDF) {
-        if ($type == ACTION_VIEW) {
+    if ($type != REPORT_NCCCSCENSUS_ACTION_PDF) {
+        if ($type == REPORT_NCCCSCENSUS_ACTION_VIEW) {
             // Create legend for HTML view.
             $legend = new html_table();
             $legend->head = array(get_string('legend', $reportname));
@@ -802,11 +804,11 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
             $status = $result->status;
             $grade = $result->grade;
 
-            if ($type == ACTION_VIEW && $grade == get_string('nograde', $reportname)) {
+            if ($type == REPORT_NCCCSCENSUS_ACTION_VIEW && $grade == get_string('nograde', $reportname)) {
                 $specialstatus = new html_table_cell($status);
                 $specialstatus->style = 'background-color: '.get_config('report_ncccscensus', 'gradenogradecolour');
                 $status = $specialstatus;
-            } else if ($type == ACTION_VIEW && $result->overridden) {
+            } else if ($type == REPORT_NCCCSCENSUS_ACTION_VIEW && $result->overridden) {
                 $specialstatus = new html_table_cell($status);
                 $specialstatus->style = 'background-color: '.get_config('report_ncccscensus', 'gradeoverridecolour');
                 $status = $specialstatus;
@@ -814,11 +816,11 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
 
             $datum[] = $status;
             $datum[] = $result->submitdate;
-            if ($type == ACTION_VIEW && $grade == get_string('nograde', $reportname)) {
+            if ($type == REPORT_NCCCSCENSUS_ACTION_VIEW && $grade == get_string('nograde', $reportname)) {
                 $nograde = new html_table_cell($grade);
                 $nograde->style = 'background-color: '.get_config('report_ncccscensus', 'gradenogradecolour');
                 $grade = $nograde;
-            } else if ($type == ACTION_VIEW && $result->overridden) {
+            } else if ($type == REPORT_NCCCSCENSUS_ACTION_VIEW && $result->overridden) {
                 $overriddengrade = new html_table_cell($grade);
                 $overriddengrade->style = 'background-color: '.get_config('report_ncccscensus', 'gradeoverridecolour');
                 $grade = $overriddengrade;
@@ -838,28 +840,28 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
     $datestring = 'n/j/y';
     $reportrange = date($datestring, $formdata->startdate).' - '.date($datestring, $formdata->enddate);
 
-    if ($type != ACTION_VIEW) {
+    if ($type != REPORT_NCCCSCENSUS_ACTION_VIEW) {
         $date = usergetdate(time(), get_user_timezone());
         $filename  = 'CensusRpt2_';
         $filename .= date('MdY_Hi', mktime($date['hours'], $date['minutes'], 0, $date['mon'], $date['mday'], $date['year']));
     }
 
-    if ($type == ACTION_VIEW) {
+    if ($type == REPORT_NCCCSCENSUS_ACTION_VIEW) {
 
-        if (ncccscensus_check_field_status('showcoursename', 'html')) {
+        if (report_ncccscensus_check_field_status('showcoursename', 'html')) {
             echo '<b>'.get_string('coursetitle', $reportname).':</b> '.$course->fullname.'<br>';
         }
 
-        if (ncccscensus_check_field_status('showcoursecode', 'html')) {
+        if (report_ncccscensus_check_field_status('showcoursecode', 'html')) {
             echo '<b>'.get_string('coursecode', $reportname).':</b> '.$course->shortname.'<br>';
         }
 
         // Only show course ID if present.
-        if (ncccscensus_check_field_status('showcourseid', 'html') && $course->idnumber !== '') {
+        if (report_ncccscensus_check_field_status('showcourseid', 'html') && $course->idnumber !== '') {
             echo '<b>'.get_string('courseid', $reportname).':</b> '.$course->idnumber.'<br>';
         }
 
-        if (ncccscensus_check_field_status('showteachername', 'html')) {
+        if (report_ncccscensus_check_field_status('showteachername', 'html')) {
             if (!empty($namesarrayview)) {
                 $instructors = implode(', ', $namesarrayview);
                 echo '<b>'.get_string('instructor', $reportname).':</b> '.$instructors.'<br>';
@@ -884,7 +886,7 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
         echo '<br><div align="center"><a href="'.$CFG->wwwroot.'/report/ncccscensus/index.php?id='.$formdata->id.'">';
         echo get_string('backtoreport', 'report_ncccscensus').'</a></div>';
 
-    } else if ($type == ACTION_PDF) {
+    } else if ($type == REPORT_NCCCSCENSUS_ACTION_PDF) {
 
         $topheaders = array();
         $topheaders['student']    = get_string('student', $reportname);
@@ -894,7 +896,7 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
 
         $bottomheaders = array();
         $bottomheaders['student'] = array('fullname' => get_string('studentfullnamepdf', $reportname));
-        $showstudentid = ncccscensus_check_field_status('showstudentid', 'pdf');
+        $showstudentid = report_ncccscensus_check_field_status('showstudentid', 'pdf');
         if ($showstudentid) {
             $bottomheaders['student']['id'] = get_string('studentidpdf', $reportname);
         }
@@ -929,19 +931,19 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
 
         $censusreport->filename = $filename.'.pdf';
 
-        if (ncccscensus_check_field_status('showcoursename', 'pdf')) {
+        if (report_ncccscensus_check_field_status('showcoursename', 'pdf')) {
             $censusreport->top[] = array(get_string('coursetitlepdf', $reportname).':', $course->fullname);
         }
 
-        if (ncccscensus_check_field_status('showcoursecode', 'pdf')) {
+        if (report_ncccscensus_check_field_status('showcoursecode', 'pdf')) {
             $censusreport->top[] = array(get_string('coursecodepdf', $reportname).':', $course->shortname);
         }
 
-        if (ncccscensus_check_field_status('showcourseid', 'pdf') && $course->idnumber !== '') {
+        if (report_ncccscensus_check_field_status('showcourseid', 'pdf') && $course->idnumber !== '') {
             $censusreport->top[] = array(get_string('courseid', $reportname).':', $course->idnumber);
         }
 
-        if (ncccscensus_check_field_status('showteachername', 'pdf')) {
+        if (report_ncccscensus_check_field_status('showteachername', 'pdf')) {
             if (!empty($namesarrayview)) {
                 $instructors = implode(', ', $namesarrayview);
             }
@@ -956,11 +958,11 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
             $censusreport->top[] = array(get_string('group', $reportname).':', get_string('allgroupspdf', $reportname));
         }
 
-        if (ncccscensus_check_field_status('showsignatureline', 'pdf')) {
+        if (report_ncccscensus_check_field_status('showsignatureline', 'pdf')) {
             $censusreport->signatureline = true;
         }
 
-        if (ncccscensus_check_field_status('showdateline', 'pdf')) {
+        if (report_ncccscensus_check_field_status('showdateline', 'pdf')) {
             $censusreport->dateline = true;
         }
 
@@ -970,7 +972,7 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
         $censusreport->download($saveto);
         return true;
 
-    } else if ($type == ACTION_CSV) {
+    } else if ($type == REPORT_NCCCSCENSUS_ACTION_CSV) {
 
         if (!empty($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
             header('Expires: 0');
@@ -992,19 +994,19 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
         fputcsv($output, array(get_string('ncccscensusreport_title', 'report_ncccscensus')));
         fputcsv($output, array());
 
-        if (ncccscensus_check_field_status('showcoursename', 'csv')) {
+        if (report_ncccscensus_check_field_status('showcoursename', 'csv')) {
             fputcsv($output, array(get_string('coursetitle', $reportname), $course->fullname));
         }
 
-        if (ncccscensus_check_field_status('showcoursecode', 'csv')) {
+        if (report_ncccscensus_check_field_status('showcoursecode', 'csv')) {
             fputcsv($output, array(get_string('coursecode', $reportname), $course->shortname));
         }
 
-        if (ncccscensus_check_field_status('showcourseid', 'csv') && ($course->idnumber !== '')) {
+        if (report_ncccscensus_check_field_status('showcourseid', 'csv') && ($course->idnumber !== '')) {
             fputcsv($output, array(get_string('courseid', $reportname), $course->idnumber));
         }
 
-        if (!empty($namesarrayview) && ncccscensus_check_field_status('showteachername', 'csv')) {
+        if (!empty($namesarrayview) && report_ncccscensus_check_field_status('showteachername', 'csv')) {
             fputcsv($output, array_merge(array(get_string('instructor', $reportname)), $namesarraycsv));
         }
 
@@ -1023,8 +1025,8 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
             fputcsv($output, $row);
         }
 
-        $showsignatureline = ncccscensus_check_field_status('showsignatureline', 'csv');
-        $showdateline = ncccscensus_check_field_status('showdateline', 'csv');
+        $showsignatureline = report_ncccscensus_check_field_status('showsignatureline', 'csv');
+        $showdateline = report_ncccscensus_check_field_status('showdateline', 'csv');
 
         if ($showsignatureline || $showdateline) {
             fputcsv($output, array());
@@ -1051,13 +1053,13 @@ function ncccscensus_generate_report($formdata, $type = ACTION_VIEW, $saveto = f
  * @return array of users
  * @uses $CFG
  */
-function ncccscensus_get_users($course, $group = null) {
+function report_ncccscensus_get_users($course, $group = null) {
 
     global $CFG;
     require_once($CFG->libdir.'/accesslib.php');
 
     $excludegroupmembers = false;
-    if ($group === EXCLUDE_GROUP_MEMBERS) {
+    if ($group === REPORT_NCCCSCENSUS_EXCLUDE_GROUP_MEMBERS) {
         $excludegroupmembers = true;
         $group = null; // Set group to null to retrieve all users, then filter out group members.
     }
@@ -1068,7 +1070,7 @@ function ncccscensus_get_users($course, $group = null) {
     $context = context_course::instance($course);
     $users = array();
     foreach ($roles as $role) {
-        $roleusers = get_role_users($role, $context, false, 'u.id', null, true, $group);
+        $roleusers = get_role_users($role, $context, false, 'u.id, u.firstname, u.lastname', null, true, $group);
         foreach ($roleusers as $roleuser) {
             $users[] = $roleuser->id;
         }
@@ -1102,7 +1104,7 @@ function ncccscensus_get_users($course, $group = null) {
  * @return bool whether to show the field
  * @uses $CFG
  */
-function ncccscensus_check_field_status($field, $type = '') {
+function report_ncccscensus_check_field_status($field, $type = '') {
     global $CFG;
     require_once($CFG->libdir.'/moodlelib.php');
 
@@ -1134,7 +1136,7 @@ function ncccscensus_check_field_status($field, $type = '') {
  * @return array An array of user course log information.
  * @uses $CFG, $DB
  */
-function ncccscensus_build_grades_array($courseid, $users, $startdate, $enddate) {
+function report_ncccscensus_build_grades_array($courseid, $users, $startdate, $enddate) {
     global $CFG, $DB;
 
     require_once($CFG->dirroot.'/lib/gradelib.php');
@@ -1155,8 +1157,9 @@ function ncccscensus_build_grades_array($courseid, $users, $startdate, $enddate)
     }
 
     // Pass #1 - Get any graded forum post records from the DB.
-    $sql = 'SELECT u.id AS userid, fp.id AS postid, gi.id AS giid, u.firstname, u.lastname, u.idnumber, gg.overridden,
-                   fp.message, gi.itemname, gg.finalgrade, fp.created AS timesubmitted, fp.modified AS timecreated,
+    $sql = 'SELECT DISTINCT u.id AS userid, fp.id AS postid, gi.id AS giid, u.firstname,
+                   u.lastname, u.idnumber, gg.overridden, fp.message, gi.itemname,
+                   gg.finalgrade, fp.created AS timesubmitted, fp.modified AS timecreated,
                    u.firstnamephonetic, u.lastnamephonetic, u.middlename, u.alternatename
               FROM {forum_posts} fp
         INNER JOIN {forum_discussions} fd ON fd.id = fp.discussion
@@ -1167,11 +1170,9 @@ function ncccscensus_build_grades_array($courseid, $users, $startdate, $enddate)
              WHERE fd.course = :courseid
                    AND f.assessed > 0
                    AND fp.userid != 0
-                   AND gi.itemmodule = "forum"
+                   AND gi.itemmodule = \'forum\'
                    AND fp.created >= :timestart
                    AND fp.created <= :timeend
-          GROUP BY fp.userid, u.id, fp.id, gi.id, u.firstname, u.lastname, u.idnumber, fp.message, gi.itemname, gg.finalgrade,
-                   fp.created
           ORDER BY fp.created ASC, u.lastname ASC, u.firstname ASC';
 
     $dbparams = array(
@@ -1229,7 +1230,7 @@ function ncccscensus_build_grades_array($courseid, $users, $startdate, $enddate)
              WHERE glos.course = :courseid
                    AND glos.assessed > 0
                    AND ent.userid != 0
-                   AND gi.itemmodule = "glossary"
+                   AND gi.itemmodule = \'glossary\'
                    AND ent.timecreated >= :timestart
                    AND ent.timecreated <= :timeend';
 
@@ -1288,9 +1289,9 @@ function ncccscensus_build_grades_array($courseid, $users, $startdate, $enddate)
          LEFT JOIN {assign_grades} ag ON ag.assignment = a.id AND ag.userid = s.userid
         INNER JOIN {user} u ON u.id = s.userid AND s.userid in ('.$users.')
              WHERE a.course = :courseid
-                   AND s.status NOT IN ("'.ASSIGN_SUBMISSION_STATUS_NEW.'", "'.ASSIGN_SUBMISSION_STATUS_DRAFT.'")
+                   AND s.status NOT IN (\''.ASSIGN_SUBMISSION_STATUS_NEW.'\', \''.ASSIGN_SUBMISSION_STATUS_DRAFT.'\')
                    AND s.userid != 0
-                   AND gi.itemmodule = "assign"
+                   AND gi.itemmodule = \'assign\'
                    AND s.timemodified >= :timestart
                    AND s.timemodified <= :timeend';
 
@@ -1348,9 +1349,9 @@ function ncccscensus_build_grades_array($courseid, $users, $startdate, $enddate)
          LEFT JOIN {quiz_grades} qg ON qg.quiz = qu.id AND qg.userid = q.userid
         INNER JOIN {user} u ON u.id = q.userid AND q.userid in ('.$users.')
              WHERE qu.course = :courseid
-                   AND q.state NOT IN ("'.quiz_attempt::IN_PROGRESS.'", "'.quiz_attempt::ABANDONED.'")
+                   AND q.state NOT IN (\''.quiz_attempt::IN_PROGRESS.'\', \''.quiz_attempt::ABANDONED.'\')
                    AND q.userid != 0
-                   AND gi.itemmodule = "quiz"
+                   AND gi.itemmodule = \'quiz\'
                    AND q.timefinish >= :timestart
                    AND q.timefinish <= :timeend';
 
@@ -1398,7 +1399,7 @@ function ncccscensus_build_grades_array($courseid, $users, $startdate, $enddate)
     unset($rs);
 
     // Add in users without activity if desired.
-    if (ncccscensus_check_field_status('showallstudents')) {
+    if (report_ncccscensus_check_field_status('showallstudents')) {
         $sql = 'SELECT u.id as userid, u.lastname, u.firstname, u.idnumber, u.firstnamephonetic, u.lastnamephonetic, u.middlename,
                        u.alternatename
                   FROM {user} u
@@ -1430,7 +1431,7 @@ function ncccscensus_build_grades_array($courseid, $users, $startdate, $enddate)
     }
 
     // Sort the resulting data by using a "lastname ASC, firstname ASC" sorting algorithm.
-    usort($results, 'ncccscensus_results_sort');
+    usort($results, 'report_ncccscensus_results_sort');
 
     return $results;
 }
@@ -1444,7 +1445,7 @@ function ncccscensus_build_grades_array($courseid, $users, $startdate, $enddate)
  * @param string $input The input string.
  * @return string A CSV export 'safe' string.
  */
-function ncccscensus_csv_escape_string($input) {
+function report_ncccscensus_csv_escape_string($input) {
     $input = str_replace(array("\r", "\n", "\t"), ' ', $input);
     $input = str_replace('"', '""', $input);
     $input = '"'.$input.'"';
@@ -1458,7 +1459,7 @@ function ncccscensus_csv_escape_string($input) {
  * @param mixed $a a user object
  * @param mixed $b a user object
  */
-function ncccscensus_results_sort($a, $b) {
+function report_ncccscensus_results_sort($a, $b) {
     $a1 = strtolower($a->lastname);
     $b1 = strtolower($b->lastname);
     $a2 = strtolower($a->firstname);
@@ -1552,7 +1553,7 @@ function report_ncccscensus_teacher_search($query, $courses = array(), $courseca
         $coursecategories = array_map('report_ncccscensus_format_category_data', $coursecategories);
 
         // Get an array of courses in the course category.
-        $courses = ncccscensus_get_category_courses($coursecategories);
+        $courses = report_ncccscensus_get_category_courses($coursecategories);
 
         $results = report_ncccscensus_get_users_with_capability_in_contexts($courses, 'moodle/grade:edit', $query);
     }
@@ -1710,9 +1711,9 @@ function report_ncccscensus_category_search($query) {
 }
 
 /**
- * Class: ncccscensus_exception
+ * Class: report_ncccscensus_exception
  *
  * @see moodle_exception
  */
-class ncccscensus_exception extends moodle_exception {
+class report_ncccscensus_exception extends moodle_exception {
 }

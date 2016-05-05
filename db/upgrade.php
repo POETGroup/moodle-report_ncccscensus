@@ -76,6 +76,17 @@ function xmldb_report_ncccscensus_upgrade($oldversion) {
         // Ncccscensus savepoint reached.
         upgrade_plugin_savepoint(true, 2014073101, 'report', 'ncccscensus');
     }
-    
+
+    if ($oldversion < 2014073104.01) {
+
+        // Standardize table names, preventing namespace collisions.
+        $dbman->rename_table(new xmldb_table('ncccscensus_reports'), 'report_ncccscensus');
+        $dbman->rename_table(new xmldb_table('ncccscensus_batch'), 'report_ncccscensus_batch');
+
+        // Ncccscensus savepoint reached.
+        upgrade_plugin_savepoint(true, 2014073104.01, 'report', 'ncccscensus');
+
+    }
+
     return true;
 }
