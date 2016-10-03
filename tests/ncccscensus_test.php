@@ -68,7 +68,7 @@ class report_ncccscensus_testcase extends advanced_testcase {
         $courses = array($data['course2']->id, $data['course6']->id);
         $catcourses = report_ncccscensus_get_courses($formdata);
         $this->assertCount(2, $catcourses);
-        foreach($courses as $course) {
+        foreach ($courses as $course) {
             $this->assertTrue(in_array($course, $catcourses));
         }
 
@@ -77,7 +77,7 @@ class report_ncccscensus_testcase extends advanced_testcase {
         $courses = array($data['course3']->id, $data['course4']->id, $data['course5']->id);
         $catcourses = report_ncccscensus_get_courses($formdata);
         $this->assertCount(3, $catcourses);
-        foreach($courses as $course) {
+        foreach ($courses as $course) {
             $this->assertTrue(in_array($course, $catcourses));
         }
 
@@ -92,7 +92,7 @@ class report_ncccscensus_testcase extends advanced_testcase {
         );
         $catcourses = report_ncccscensus_get_courses($formdata);
         $this->assertCount(5, $catcourses);
-        foreach($courses as $course) {
+        foreach ($courses as $course) {
             $this->assertTrue(in_array($course, $catcourses));
         }
     }

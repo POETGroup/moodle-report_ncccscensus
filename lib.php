@@ -1180,7 +1180,7 @@ function report_ncccscensus_build_grades_array($courseid, $users, $startdate, $e
                    AND fp.created >= :timestart
                    AND fp.created <= :timeend
           GROUP BY fp.userid, u.id, fp.id, gi.id, u.firstname, u.lastname, u.idnumber, fp.message, gi.itemname, gg.finalgrade,
-                   fp.created
+                   fp.created, gg.overridden
           ORDER BY fp.created ASC, u.lastname ASC, u.firstname ASC';
 
     $dbparams = array(
