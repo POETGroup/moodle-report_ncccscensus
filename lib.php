@@ -1066,7 +1066,7 @@ function report_ncccscensus_get_users($course, $group = null) {
     require_once($CFG->libdir.'/accesslib.php');
 
     $excludegroupmembers = false;
-    if ($group === EXCLUDE_GROUP_MEMBERS) {
+    if ($group === REPORT_NCCCSCENSUS_EXCLUDE_GROUP_MEMBERS) {
         $excludegroupmembers = true;
         $group = null; // Set group to null to retrieve all users, then filter out group members.
     }
