@@ -1296,7 +1296,7 @@ function report_ncccscensus_build_grades_array($courseid, $users, $startdate, $e
          LEFT JOIN {assign_grades} ag ON ag.assignment = a.id AND ag.userid = s.userid
         INNER JOIN {user} u ON u.id = s.userid AND s.userid in ('.$users.')
              WHERE a.course = :courseid
-                   AND s.status NOT IN ("'.ASSIGN_SUBMISSION_STATUS_NEW.'", "'.ASSIGN_SUBMISSION_STATUS_DRAFT.'")
+                   AND s.status NOT IN (\''.ASSIGN_SUBMISSION_STATUS_NEW.'\', \''.ASSIGN_SUBMISSION_STATUS_DRAFT.'\')
                    AND s.userid != 0
                    AND gi.itemmodule = \'assign\'
                    AND s.timemodified >= :timestart
@@ -1356,7 +1356,7 @@ function report_ncccscensus_build_grades_array($courseid, $users, $startdate, $e
          LEFT JOIN {quiz_grades} qg ON qg.quiz = qu.id AND qg.userid = q.userid
         INNER JOIN {user} u ON u.id = q.userid AND q.userid in ('.$users.')
              WHERE qu.course = :courseid
-                   AND q.state NOT IN ("'.quiz_attempt::IN_PROGRESS.'", "'.quiz_attempt::ABANDONED.'")
+                   AND q.state NOT IN (\''.quiz_attempt::IN_PROGRESS.'\', \''.quiz_attempt::ABANDONED.'\')
                    AND q.userid != 0
                    AND gi.itemmodule = \'quiz\'
                    AND q.timefinish >= :timestart
