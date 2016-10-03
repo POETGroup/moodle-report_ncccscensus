@@ -37,7 +37,7 @@ class report_ncccscensus_admin_setting_upload extends admin_setting_configtext {
     /**
      * Constructor for this class.
      *
-     * @param string $name unique ascii name 
+     * @param string $name unique ascii name
      * @param string $visiblename localised
      * @param string $description long localised info
      * @param string $defaultsetting

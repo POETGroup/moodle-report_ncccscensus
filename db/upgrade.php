@@ -83,7 +83,7 @@ function xmldb_report_ncccscensus_upgrade($oldversion) {
         // Ncccscensus savepoint reached.
         upgrade_plugin_savepoint(true, 2014073101, 'report', 'ncccscensus');
     }
-    
+
     // Upgrade step: Rename tables to match Moodle database rules.
     if ($oldversion < 2014073105) {
 

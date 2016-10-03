@@ -83,8 +83,9 @@ class CR2_PDF extends TCPDF {
         $curheaderimg = $DB->get_field('config_plugins', 'value',
                 array('plugin' => 'report_ncccscensus', 'name' => 'headerimgname'), IGNORE_MISSING);
         if ($curheaderimg !== '' && file_exists($CFG->dataroot.'/report/ncccscensus/pix/header/'.$curheaderimg)) {
-            $this->Image($CFG->dataroot.'/report/ncccscensus/pix/header/'.$curheaderimg, $this->getPageWidth()
-                    - $this->rightmargin - $this->imagewidth, $this->topmargin, $this->imagewidth, 1, '', '', 'N');
+            $this->Image($CFG->dataroot.'/report/ncccscensus/pix/header/'.$curheaderimg,
+                ($this->getPageWidth() - $this->rightmargin - $this->imagewidth),
+                $this->topmargin, $this->imagewidth, 1, '', '', 'N');
         }
 
         $this->tMargin = max($this->GetY(), $saveypos) + 0.1;

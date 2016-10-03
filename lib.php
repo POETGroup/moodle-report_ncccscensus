@@ -1176,7 +1176,7 @@ function report_ncccscensus_build_grades_array($courseid, $users, $startdate, $e
              WHERE fd.course = :courseid
                    AND f.assessed > 0
                    AND fp.userid != 0
-                   AND gi.itemmodule = "forum"
+                   AND gi.itemmodule = \'forum\'
                    AND fp.created >= :timestart
                    AND fp.created <= :timeend
           GROUP BY fp.userid, u.id, fp.id, gi.id, u.firstname, u.lastname, u.idnumber, fp.message, gi.itemname, gg.finalgrade,
@@ -1238,7 +1238,7 @@ function report_ncccscensus_build_grades_array($courseid, $users, $startdate, $e
              WHERE glos.course = :courseid
                    AND glos.assessed > 0
                    AND ent.userid != 0
-                   AND gi.itemmodule = "glossary"
+                   AND gi.itemmodule = \'glossary\'
                    AND ent.timecreated >= :timestart
                    AND ent.timecreated <= :timeend';
 
@@ -1285,7 +1285,6 @@ function report_ncccscensus_build_grades_array($courseid, $users, $startdate, $e
 
     unset($rs);
 
-
     // Pass #3 - Get any graded assignment entries from the DB.
     $sql = 'SELECT u.id AS userid, s.id AS entid, gi.id AS giid, u.firstname, u.lastname, u.idnumber, s.status,
                    gi.itemname, gg.finalgrade, s.timemodified AS timesubmitted, ag.timemodified AS timegraded, u.alternatename,
@@ -1299,7 +1298,7 @@ function report_ncccscensus_build_grades_array($courseid, $users, $startdate, $e
              WHERE a.course = :courseid
                    AND s.status NOT IN ("'.ASSIGN_SUBMISSION_STATUS_NEW.'", "'.ASSIGN_SUBMISSION_STATUS_DRAFT.'")
                    AND s.userid != 0
-                   AND gi.itemmodule = "assign"
+                   AND gi.itemmodule = \'assign\'
                    AND s.timemodified >= :timestart
                    AND s.timemodified <= :timeend';
 
@@ -1359,7 +1358,7 @@ function report_ncccscensus_build_grades_array($courseid, $users, $startdate, $e
              WHERE qu.course = :courseid
                    AND q.state NOT IN ("'.quiz_attempt::IN_PROGRESS.'", "'.quiz_attempt::ABANDONED.'")
                    AND q.userid != 0
-                   AND gi.itemmodule = "quiz"
+                   AND gi.itemmodule = \'quiz\'
                    AND q.timefinish >= :timestart
                    AND q.timefinish <= :timeend';
 

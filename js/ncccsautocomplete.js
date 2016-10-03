@@ -2,8 +2,8 @@
 var Teachers = {
     teachers : [],
     init : function() {
-       Teachers.teachers = [];
-       Teachers.update();
+        Teachers.teachers = [];
+        Teachers.update();
     },
     select : function (selected) {
         if (typeof selected.result.raw.id != "undefined") {
@@ -15,29 +15,29 @@ var Teachers = {
         setTimeout(function () { Y.one('#id_teacherids').set('value', ''); }, 250);
     },
     delete : function(id) {
-       var newlist = [];
-       for(var i = 0; i < Teachers.teachers.length; i++) {
+        var newlist = [];
+        for(var i = 0; i < Teachers.teachers.length; i++) {
             if (Teachers.teachers[i]['id'] != id) {
                 newlist.push(Teachers.teachers[i]);
             }
-       }
-       Teachers.teachers = newlist;
-       Teachers.update();
+        }
+        Teachers.teachers = newlist;
+        Teachers.update();
     },
     update : function() {
-       var html = "";
-       var ids = "";
-       var seperator = "";
-       for(var i = 0; i < Teachers.teachers.length; i++) {
-           html += '<a href="javascript:Teachers.delete('+Teachers.teachers[i]['id']+')"><img src="images/delete.png" style="vertical-align: -2px"></a> '+Teachers.teachers[i].name+'<br>';
-           ids = ids + seperator + Teachers.teachers[i]['id'];
-           seperator = ',';
-       }
-       if (html !== "") {
-           html = '<b>Teachers selected</b><br>'+html;
-       }
-       ncccs_setcontent('#teachers_list', html);
-       Y.one('input[name="teachers"]').set('value', ids);
+        var html = "";
+        var ids = "";
+        var seperator = "";
+        for(var i = 0; i < Teachers.teachers.length; i++) {
+            html += '<a href="javascript:Teachers.delete(' + Teachers.teachers[i]['id'] + ')"><img src="images/delete.png" style="vertical-align: -2px"></a> ' + Teachers.teachers[i].name + '<br>';
+            ids = ids + seperator + Teachers.teachers[i]['id'];
+            seperator = ',';
+        }
+        if (html !== "") {
+            html = '<b>Teachers selected</b><br>'+html;
+        }
+        ncccs_setcontent('#teachers_list', html);
+        Y.one('input[name="teachers"]').set('value', ids);
     }
 };
 
@@ -45,8 +45,8 @@ var Teachers = {
 var Categories = {
     categories : [],
     init : function() {
-       Categories.categories = [];
-       Categories.update();
+        Categories.categories = [];
+        Categories.update();
     },
     select : function (selected) {
         if (typeof selected.result.raw.id != "undefined") {
@@ -58,29 +58,29 @@ var Categories = {
         setTimeout(function () { Y.one('#id_categoryids').set('value', ''); }, 250);
     },
     delete : function(id) {
-       var newlist = [];
-       for(var i = 0; i < Categories.categories.length; i++) {
+        var newlist = [];
+        for(var i = 0; i < Categories.categories.length; i++) {
             if (Categories.categories[i]['id'] != id) {
                 newlist.push(Categories.categories[i]);
             }
-       }
-       Categories.categories = newlist;
-       Categories.update();
+        }
+        Categories.categories = newlist;
+        Categories.update();
     },
     update : function() {
-       var html = "";
-       var ids = "";
-       var seperator = "";
-       for(var i = 0; i < Categories.categories.length; i++) {
-           html += '<a href="javascript:Categories.delete('+Categories.categories[i]['id']+')"><img src="images/delete.png" style="vertical-align: -2px"></a> '+Categories.categories[i].name+'<br>';
-           ids = ids + seperator + Categories.categories[i]['id'];
-           seperator = ',';
-       }
-       if (html !== "") {
-           html = '<b>Categories selected</b><br>'+html;
-       }
-       ncccs_setcontent('#categories_list', html);
-       Y.one('input[name="categories"]').set('value', ids);
+        var html = "";
+        var ids = "";
+        var seperator = "";
+        for(var i = 0; i < Categories.categories.length; i++) {
+            html += '<a href="javascript:Categories.delete(' + Categories.categories[i]['id'] + ')"><img src="images/delete.png" style="vertical-align: -2px"></a> ' + Categories.categories[i].name + '<br>';
+            ids = ids + seperator + Categories.categories[i]['id'];
+            seperator = ',';
+        }
+        if (html !== "") {
+            html = '<b>Categories selected</b><br>'+html;
+        }
+        ncccs_setcontent('#categories_list', html);
+        Y.one('input[name="categories"]').set('value', ids);
     }
 };
 
@@ -88,8 +88,8 @@ var Categories = {
 var Courses = {
     courses : [],
     init : function() {
-       Courses.courses = [];
-       Courses.update();
+        Courses.courses = [];
+        Courses.update();
     },
     select : function (selected) {
         if (typeof selected.result.raw.id != "undefined") {
@@ -101,29 +101,29 @@ var Courses = {
         setTimeout(function () { Y.one('#id_coursesids').set('value', ''); }, 250);
     },
     delete : function(id) {
-       var newlist = [];
-       for(var i = 0; i < Courses.courses.length; i++) {
+        var newlist = [];
+        for(var i = 0; i < Courses.courses.length; i++) {
             if (Courses.courses[i]['id'] != id) {
                 newlist.push(Courses.courses[i]);
             }
-       }
-       Courses.courses = newlist;
-       Courses.update();
+        }
+        Courses.courses = newlist;
+        Courses.update();
     },
     update : function() {
-       var html = "";
-       var ids = "";
-       var seperator = "";
-       for(var i = 0; i < Courses.courses.length; i++) {
-           html += '<a href="javascript:Courses.delete('+Courses.courses[i]['id']+')"><img src="images/delete.png" style="vertical-align: -2px"></a> '+Courses.courses[i].name+'<br>';
-           ids = ids + seperator + Courses.courses[i]['id'];
-           seperator = ',';
-       }
-       if (html !== "") {
-           html = '<b>Courses selected</b><br>'+html;
-       }
-       ncccs_setcontent('#courses_list', html);
-       Y.one('input[name="courses"]').set('value', ids);
+        var html = "";
+        var ids = "";
+        var seperator = "";
+        for(var i = 0; i < Courses.courses.length; i++) {
+            html += '<a href="javascript:Courses.delete(' + Courses.courses[i]['id'] + ')"><img src="images/delete.png" style="vertical-align: -2px"></a> ' + Courses.courses[i].name + '<br>';
+            ids = ids + seperator + Courses.courses[i]['id'];
+            seperator = ',';
+        }
+        if (html !== "") {
+            html = '<b>Courses selected</b><br>'+html;
+        }
+        ncccs_setcontent('#courses_list', html);
+        Y.one('input[name="courses"]').set('value', ids);
     }
 };
 
@@ -184,17 +184,17 @@ function init_ncccsautocomplete(Y) {
 
 // Rewrite courses query url to include categories.
 function courseSearch(query) {
-    var url = 'q='+encodeURIComponent(query)+'&c=';
+    var url = 'q=' + encodeURIComponent(query) + '&c=';
     url = url + encodeURIComponent(JSON.stringify(Categories.categories));
     return url;
 }
 
 // Rewrite courses query url to include categories.
 function teacherSearch(query) {
-    var url = 'q='+encodeURIComponent(query)+'&cc=';
-    url = url+encodeURIComponent(JSON.stringify(Categories.categories));
-    url = url+'&c=';
-    url = url+encodeURIComponent(JSON.stringify(Courses.courses));
+    var url = 'q=' + encodeURIComponent(query) + '&cc=';
+    url = url + encodeURIComponent(JSON.stringify(Categories.categories));
+    url = url + '&c=';
+    url = url + encodeURIComponent(JSON.stringify(Courses.courses));
     return url;
 }
 
@@ -217,8 +217,8 @@ function ncccs_setcontent(id, html) {
     }
     div.setContent(html);
     if (html !== '') {
-       div.setStyle("display", "block");
+        div.setStyle("display", "block");
     } else {
-       div.setStyle("display", "none");
+        div.setStyle("display", "none");
     }
 }
