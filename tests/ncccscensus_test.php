@@ -59,17 +59,27 @@ class report_ncccscensus_testcase extends advanced_testcase {
         $formdata = new stdClass;
         $formdata->categories = $data['category1']->id;
         $courses = array($data['course1']->id);
-        $this->assertEquals(report_ncccscensus_get_courses($formdata), $courses);
+        $catcourses = report_ncccscensus_get_courses($formdata);
+        $this->assertCount(1, $catcourses);
+        $this->assertEquals($courses, $catcourses);
 
         // Test subcategory selection.
         $formdata->categories = $data['category2']->id;
         $courses = array($data['course2']->id, $data['course6']->id);
-        $this->assertEquals(report_ncccscensus_get_courses($formdata), $courses);
+        $catcourses = report_ncccscensus_get_courses($formdata);
+        $this->assertCount(2, $catcourses);
+        foreach($courses as $course) {
+            $this->assertTrue(in_array($course, $catcourses));
+        }
 
         // Test subcategory selection with two courses in it.
         $formdata->categories = $data['category3']->id;
         $courses = array($data['course3']->id, $data['course4']->id, $data['course5']->id);
-        $this->assertEquals(report_ncccscensus_get_courses($formdata), $courses);
+        $catcourses = report_ncccscensus_get_courses($formdata);
+        $this->assertCount(3, $catcourses);
+        foreach($courses as $course) {
+            $this->assertTrue(in_array($course, $catcourses));
+        }
 
         // Test two category selections with three courses in it.
         $formdata->categories = join(',', array($data['category2']->id, $data['category3']->id));
@@ -80,7 +90,11 @@ class report_ncccscensus_testcase extends advanced_testcase {
                 $data['course4']->id,
                 $data['course5']->id
         );
-        $this->assertEquals(report_ncccscensus_get_courses($formdata), $courses);
+        $catcourses = report_ncccscensus_get_courses($formdata);
+        $this->assertCount(5, $catcourses);
+        foreach($courses as $course) {
+            $this->assertTrue(in_array($course, $catcourses));
+        }
     }
 
     /**

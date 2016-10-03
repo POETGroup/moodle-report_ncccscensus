@@ -34,7 +34,7 @@ var Teachers = {
             seperator = ',';
         }
         if (html !== "") {
-            html = '<b>Teachers selected</b><br>'+html;
+            html = '<b>Teachers selected</b><br>' + html;
         }
         ncccs_setcontent('#teachers_list', html);
         Y.one('input[name="teachers"]').set('value', ids);
@@ -77,7 +77,7 @@ var Categories = {
             seperator = ',';
         }
         if (html !== "") {
-            html = '<b>Categories selected</b><br>'+html;
+            html = '<b>Categories selected</b><br>' + html;
         }
         ncccs_setcontent('#categories_list', html);
         Y.one('input[name="categories"]').set('value', ids);
@@ -120,7 +120,7 @@ var Courses = {
             seperator = ',';
         }
         if (html !== "") {
-            html = '<b>Courses selected</b><br>'+html;
+            html = '<b>Courses selected</b><br>' + html;
         }
         ncccs_setcontent('#courses_list', html);
         Y.one('input[name="courses"]').set('value', ids);
